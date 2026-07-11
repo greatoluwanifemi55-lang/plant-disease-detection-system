@@ -22,6 +22,9 @@ results/
 # Uploaded files
 uploads/
 
+# Test images
+test_images/
+
 # Temporary files
 *.log
 *.tmp
