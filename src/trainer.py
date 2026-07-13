@@ -15,6 +15,11 @@ from model_builder import build_model
 train_dataset, validation_dataset, class_names = load_datasets()
 
 model = build_model(len(class_names))
+print("\n" + "=" * 50)
+print("MODEL SUMMARY")
+print("=" * 50)
+
+model.summary()
 model.compile(
 
     optimizer=tf.keras.optimizers.Adam(
@@ -26,6 +31,7 @@ model.compile(
     metrics=["accuracy"]
 
 )
+print("\nModel compiled successfully.")
 checkpoint = tf.keras.callbacks.ModelCheckpoint(
 
     MODEL_DIR / f"{MODEL_NAME}_best.keras",
@@ -101,3 +107,10 @@ with open(history_file, "w") as file:
 
 print("\nTraining history saved to:")
 print(history_file)
+
+print("\n" + "=" * 50)
+print("TRAINING COMPLETED SUCCESSFULLY")
+print("=" * 50)
+
+print(f"Best model saved to:")
+print(MODEL_DIR / f"{MODEL_NAME}_best.keras")

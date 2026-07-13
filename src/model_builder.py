@@ -67,22 +67,62 @@ def build_model(num_classes):
 
     base_model = get_base_model()
 
-    layers = [
-        tf.keras.layers.Input(shape=(224, 224, 3))
-    ]
+    # -----------------------------------------
+    # Input Layer
+    # -----------------------------------------
+
+    inputs = tf.keras.layers.Input(
+        shape=(224, 224, 3)
+    )
+
+    x = inputs
+
+    # -----------------------------------------
+    # Optional Data Augmentation
+    # -----------------------------------------
 
     if USE_DATA_AUGMENTATION:
-        layers.append(data_augmentation)
 
-    layers.extend([
-        base_model,
-        tf.keras.layers.GlobalAveragePooling2D(),
-        tf.keras.layers.Dropout(0.3),
-        tf.keras.layers.Dense(256, activation="relu"),
-        tf.keras.layers.Dropout(0.3),
-        tf.keras.layers.Dense(num_classes, activation="softmax")
-    ])
+        x = data_augmentation(x)
 
-    model = tf.keras.Sequential(layers)
+    # -----------------------------------------
+    # MobileNetV2 Backbone
+    # -----------------------------------------
+
+    x = base_model(x)
+
+    # -----------------------------------------
+    # Classification Head
+    # -----------------------------------------
+
+    x = tf.keras.layers.GlobalAveragePooling2D()(x)
+
+    x = tf.keras.layers.Dropout(0.3)(x)
+
+    x = tf.keras.layers.Dense(
+        256,
+        activation="relu"
+    )(x)
+
+    x = tf.keras.layers.Dropout(0.3)(x)
+
+    outputs = tf.keras.layers.Dense(
+        num_classes,
+        activation="softmax"
+    )(x)
+
+    # -----------------------------------------
+    # Build Functional Model
+    # -----------------------------------------
+
+    model = tf.keras.Model(
+
+        inputs=inputs,
+
+        outputs=outputs,
+
+        name="PlantDiseaseModel"
+
+    )
 
     return model

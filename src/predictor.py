@@ -2,9 +2,14 @@ import tensorflow as tf
 import numpy as np
 
 from pathlib import Path
+
+from src.recommendations import recommendations
+
+from src.explainability import generate_explanation
+
 from keras.utils import load_img, img_to_array
 
-from config import (
+from .config import (
     MODEL_DIR,
     MODEL_NAME,
     IMAGE_SIZE,
@@ -18,6 +23,18 @@ from config import (
 model = tf.keras.models.load_model(
     MODEL_DIR / f"{MODEL_NAME}_best.keras"
 )
+print("\nMODEL LAYERS")
+print("=" * 50)
+
+for layer in model.layers:
+    print(layer.name)
+    print("\nMOBILENETV2 INTERNAL LAYERS")
+print("=" * 50)
+
+base_model = model.get_layer("mobilenetv2_1.00_224")
+
+for layer in base_model.layers:
+    print(layer.name)
 
 print("=" * 50)
 print("Model Loaded Successfully")
@@ -147,7 +164,34 @@ def predict_image(image_path):
     # Get prediction from the model
     disease, confidence, prediction, top3_indices = predict_disease(image)
 
-    # Store the Top 3 predictions
+    # Get recommendations
+    recommendation = recommendations.get(
+        disease,
+        ["No recommendation available."]
+    )
+
+    # ==========================================
+    # GENERATE LIME EXPLANATION
+    # ==========================================
+
+    from pathlib import Path
+
+    EXPLANATION_FOLDER = Path("static/explanations")
+    EXPLANATION_FOLDER.mkdir(parents=True, exist_ok=True)
+
+    explanation_filename = f"{image_path.stem}_lime.png"
+
+    explanation_path = EXPLANATION_FOLDER / explanation_filename
+
+    generate_explanation(
+        image_path,
+        explanation_path
+    )
+
+    # ==========================================
+    # TOP 3 PREDICTIONS
+    # ==========================================
+
     top_predictions = []
 
     for index in top3_indices:
@@ -164,7 +208,10 @@ def predict_image(image_path):
 
         )
 
-    # Return all prediction information
+    # ==========================================
+    # RETURN RESULTS
+    # ==========================================
+
     return {
 
         "image": image_path.name,
@@ -173,9 +220,14 @@ def predict_image(image_path):
 
         "confidence": confidence * 100,
 
-        "top_predictions": top_predictions
+        "top_predictions": top_predictions,
+
+        "recommendation": recommendation,
+
+        "explanation": explanation_filename
 
     }
+
 
 # ==================================================
 # FORMAT DISEASE NAME
