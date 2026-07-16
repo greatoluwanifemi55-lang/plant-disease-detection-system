@@ -1,0 +1,65 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+
+# Virtual environments
+.venv/
+fl_env/
+
+# TensorFlow models
+*.keras
+*.h5
+*.hdf5
+models/*.keras
+
+
+# VS Code
+.vscode/
+
+# Dataset
+dataset/
+federated_clients/
+
+# Training outputs
+experiment_results/
+results/
+
+# Trained models
+models/
+
+# Generated results
+results/
+
+# Uploaded files
+uploads/
+
+# Test images
+test_images/
+
+# Generated LIME images
+static/explanations/
+
+# Flower examples
+federated_learning/quickstart-tensorflow/
+federated_learning/quickstart-tensorflow-132/
+
+# Old experiment outputs
+federated_learning/experiment_results_5rounds/
+
+# Temporary files
+*.log
+*.tmp
+
+# Operating System files
+Thumbs.db
+.DS_Store
+
+f1_env/
+__pycache__/
+*.pyc
+
+# Jupyter
+.ipynb_checkpoints/

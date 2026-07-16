@@ -1,0 +1,27 @@
+[project]
+name = "plant-fl"
+version = "1.0.0"
+
+dependencies = [
+    "flwr[simulation]==1.32.1",
+    "tensorflow==2.20.0",
+    "numpy",
+]
+
+[tool.flwr.app]
+
+publisher = "general"
+
+[tool.flwr.app.components]
+
+serverapp = "plant_fl.server_app:app"
+clientapp = "plant_fl.client_app:app"
+
+[tool.flwr.app.config]
+
+num-server-rounds = 3
+fraction-train = 1.0
+local-epochs = 1
+batch-size = 32
+learning-rate = 1e-5
+save-model = true
