@@ -236,13 +236,19 @@ def predict_disease(image):
 
 def predict_image(image_path):
 
+    def predict_image(image_path):
+
+     print("Predict image started")
+
+    start_time = time.time()
+
     start_time = time.time()
 
     image = preprocess_image(
-
-        image_path
-
-    )
+    image_path
+)
+    print("Image preprocessed")
+    
     print("=" * 60)
     print("STEP 1: Image Preprocessed")
     print("=" * 60)
@@ -294,13 +300,14 @@ def predict_image(image_path):
     print("STEP 3: Starting LIME")
     print("=" * 60)
 
+    print("Starting LIME")
+
     generate_explanation(
+    image_path,
+    explanation_path
+  )
 
-        image_path,
-
-        explanation_path
-
-    )
+    print("LIME complete")
 
     print("=" * 60)
     print("STEP 4: LIME Finished")

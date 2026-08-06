@@ -83,23 +83,18 @@ def uploaded_file(filename):
 # ==========================================================
 
 @app.route(
-
     "/predict",
-
     methods=["POST"]
-
 )
-
 def predict():
+
+    print("STEP 1 - Request received")
 
     if "image" not in request.files:
 
         return render_template(
-
             "index.html",
-
             error="Please upload an image."
-
         )
 
     file = request.files["image"]
@@ -107,55 +102,41 @@ def predict():
     if file.filename == "":
 
         return render_template(
-
             "index.html",
-
             error="No image selected."
-
         )
 
     if not allowed_file(file.filename):
 
         return render_template(
-
             "index.html",
-
             error="Unsupported image format."
-
         )
 
     filename = secure_filename(
-
         file.filename
-
     )
 
     image_path = (
-
         UPLOADS_DIR /
-
         filename
-
     )
 
-    file.save(
+    file.save(image_path)
 
-        image_path
+    print("STEP 2 - Image saved")
 
-    )
+    print("STEP 3 - Starting prediction")
 
     result = predict_image(
-
         image_path
-
     )
 
+    print("STEP 4 - Prediction finished")
+
     return render_template(
-
         "result.html",
-
         result=result
-
     )
 
 # ==========================================================
@@ -169,3 +150,4 @@ if __name__ == "__main__":
         debug=True
 
     )
+    
