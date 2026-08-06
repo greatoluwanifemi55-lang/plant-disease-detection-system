@@ -18,6 +18,8 @@ Authors:
 
 import time
 
+import json
+
 from pathlib import Path
 
 import numpy as np
@@ -88,19 +90,11 @@ def load_class_names():
 
     if class_names is None:
 
-        dataset = tf.keras.utils.image_dataset_from_directory(
+        class_file = MODELS_DIR / "class_names.json"
 
-            TEST_DIR,
+        with open(class_file, "r") as file:
 
-            shuffle=False,
-
-            batch_size=32,
-
-            image_size=IMAGE_SIZE,
-
-        )
-
-        class_names = dataset.class_names
+            class_names = json.load(file)
 
     return class_names
 # ==========================================================
