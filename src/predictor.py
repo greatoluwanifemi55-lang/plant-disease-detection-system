@@ -162,74 +162,50 @@ def format_disease_name(name):
 
 def predict_disease(image):
 
+    print("STEP A - Loading model...", flush=True)
+
     model = load_model()
+
+    print("STEP B - Model loaded", flush=True)
+
+    print("STEP C - Loading class names...", flush=True)
 
     classes = load_class_names()
 
+    print("STEP D - Class names loaded", flush=True)
+
+    print("STEP E - Running prediction...", flush=True)
+
     prediction = model.predict(
-
         image,
-
         verbose=0,
-
     )[0]
 
-    predicted_index = np.argmax(
+    print("STEP F - Prediction finished", flush=True)
 
-        prediction
+    predicted_index = np.argmax(prediction)
 
-    )
-
-    confidence = float(
-
-        prediction[predicted_index]
-
-    )
+    confidence = float(prediction[predicted_index])
 
     disease = format_disease_name(
-
         classes[predicted_index]
-
     )
 
-    top3_indices = np.argsort(
-
-        prediction
-
-    )[::-1][:3]
+    top3_indices = np.argsort(prediction)[::-1][:3]
 
     top_predictions = []
 
     for index in top3_indices:
 
-        top_predictions.append(
-
-            {
-
-                "disease": format_disease_name(
-
-                    classes[index]
-
-                ),
-
-                "confidence": float(
-
-                    prediction[index] * 100
-
-                ),
-
-            }
-
-        )
+        top_predictions.append({
+            "disease": format_disease_name(classes[index]),
+            "confidence": float(prediction[index] * 100),
+        })
 
     return (
-
         disease,
-
         confidence,
-
         top_predictions,
-
     )
 # ==========================================================
 # PREDICT IMAGE
