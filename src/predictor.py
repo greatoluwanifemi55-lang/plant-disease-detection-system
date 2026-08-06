@@ -243,6 +243,9 @@ def predict_image(image_path):
         image_path
 
     )
+    print("=" * 60)
+    print("STEP 1: Image Preprocessed")
+    print("=" * 60)
 
     model_start = time.time()
 
@@ -251,6 +254,9 @@ def predict_image(image_path):
         image
 
     )
+    print("=" * 60)
+    print("STEP 2: Prediction Complete")
+    print("=" * 60)
 
     model_time = time.time() - model_start
 
@@ -284,6 +290,10 @@ def predict_image(image_path):
 
     )
 
+    print("=" * 60)
+    print("STEP 3: Starting LIME")
+    print("=" * 60)
+
     generate_explanation(
 
         image_path,
@@ -291,6 +301,10 @@ def predict_image(image_path):
         explanation_path
 
     )
+
+    print("=" * 60)
+    print("STEP 4: LIME Finished")
+    print("=" * 60)
 
     total_time = time.time() - start_time
         # ======================================================
