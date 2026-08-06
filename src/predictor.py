@@ -117,6 +117,11 @@ def preprocess_image(image_path):
 
     print("Converted to array", flush=True)
 
+    # Normalize exactly like training
+    image = image.astype("float32") / 255.0
+
+    print("Normalized", flush=True)
+
     image = np.expand_dims(
         image,
         axis=0,
@@ -181,6 +186,12 @@ def predict_disease(image):
         image,
         verbose=0,
     )[0]
+    print("\n================ PREDICTIONS ================")
+
+    for i, score in enumerate(prediction):
+     print(f"{i:2d} | {class_names[i]:40} | {score:.6f}")
+
+    print("============================================")
 
     print("STEP F - Prediction finished", flush=True)
 

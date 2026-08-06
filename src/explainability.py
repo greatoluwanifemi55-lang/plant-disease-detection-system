@@ -12,35 +12,33 @@ Authors:
 
 import matplotlib
 
-# Force Matplotlib to use a non-GUI backend
 matplotlib.use("Agg", force=True)
 
 import matplotlib.pyplot as plt
-
 import numpy as np
-import tensorflow as tf
 
 from pathlib import Path
-from PIL import Image
 
 from lime import lime_image
-from skimage.segmentation import mark_boundaries
 
-from keras.utils import load_img, img_to_array
+from skimage.segmentation import (
+    mark_boundaries,
+    quickshift,
+)
 
 from keras.utils import (
     load_img,
     img_to_array,
 )
 
-from .config import (
-    IMAGE_SIZE,
-    MODELS_DIR,
-)
+from .config import IMAGE_SIZE
+
 
 # ==========================================================
-# LOAD MODEL
+# GLOBAL MODEL
 # ==========================================================
+
+lime_model = None
 
 
 # ==========================================================
@@ -50,22 +48,14 @@ from .config import (
 def preprocess_image(image_path):
 
     image = load_img(
-
         image_path,
-
         target_size=IMAGE_SIZE,
-
     )
 
     image = img_to_array(image)
 
     return image
 
-# ==========================================================
-# GLOBAL MODEL
-# ==========================================================
-
-lime_model = None
 
 # ==========================================================
 # PREDICTION FUNCTION
@@ -77,8 +67,9 @@ def predict(images):
 
     return lime_model.predict(
         images,
-        verbose=0
+        verbose=0,
     )
+
 
 # ==========================================================
 # GENERATE LIME EXPLANATION
@@ -97,18 +88,26 @@ def generate_explanation(
 
     explainer = lime_image.LimeImageExplainer()
 
+    segments = quickshift(
+        image,
+        kernel_size=3,
+        max_dist=6,
+        ratio=0.5,
+    )
+
     explanation = explainer.explain_instance(
         image.astype("double"),
         predict,
+        segmentation_fn=lambda x: segments,
         top_labels=1,
         hide_color=0,
-        num_samples=30,
+        num_samples=100,
     )
 
     temp, mask = explanation.get_image_and_mask(
         explanation.top_labels[0],
-        positive_only=True,
-        num_features=5,
+        positive_only=False,
+        num_features=20,
         hide_rest=False,
     )
 
@@ -116,57 +115,39 @@ def generate_explanation(
         temp / 255.0,
         mask,
     )
-        # ======================================================
+
+    # ======================================================
     # SAVE IMAGE
     # ======================================================
 
     save_path = Path(save_path)
 
     save_path.parent.mkdir(
-
         parents=True,
-
         exist_ok=True,
-
     )
 
-    plt.figure(
+    plt.figure(figsize=(5, 5))
 
-        figsize=(5, 5)
-
-    )
-
-    plt.imshow(
-
-        explanation_image
-
-    )
+    plt.imshow(explanation_image)
 
     plt.axis("off")
 
     plt.tight_layout()
 
     plt.savefig(
-
         save_path,
-
         dpi=120,
-
         bbox_inches="tight",
-
     )
 
-    plt.close()
+    plt.close("all")
 
     del explanation
     del temp
     del mask
     del explanation_image
 
-    print(
-
-        f"LIME explanation saved to: {save_path}"
-
-    )
+    print(f"LIME explanation saved to: {save_path}")
 
     return save_path
