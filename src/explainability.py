@@ -42,11 +42,7 @@ from .config import (
 # LOAD MODEL
 # ==========================================================
 
-MODEL_PATH = MODELS_DIR / "best_global_model.keras"
 
-model = tf.keras.models.load_model(
-    MODEL_PATH
-)
 # ==========================================================
 # IMAGE PREPROCESSING
 # ==========================================================
@@ -72,25 +68,23 @@ def preprocess_image(image_path):
 
 def predict(images):
 
+    global lime_model
+
     images = np.array(images)
 
-    return model.predict(
-
+    return lime_model.predict(
         images,
-
         verbose=0
-
     )
+
 # ==========================================================
 # GENERATE LIME EXPLANATION
 # ==========================================================
 
 def generate_explanation(
-
+    model,
     image_path,
-
     save_path,
-
 ):
 
     image = preprocess_image(
@@ -111,7 +105,7 @@ def generate_explanation(
 
         hide_color=0,
 
-        num_samples=100,
+        num_samples=30,
 
     )
 
@@ -121,7 +115,7 @@ def generate_explanation(
 
         positive_only=True,
 
-        num_features=10,
+        num_features=5,
 
         hide_rest=False,
 
@@ -150,7 +144,7 @@ def generate_explanation(
 
     plt.figure(
 
-        figsize=(8, 8)
+        figsize=(5, 5)
 
     )
 
@@ -168,13 +162,18 @@ def generate_explanation(
 
         save_path,
 
-        dpi=300,
+        dpi=120,
 
         bbox_inches="tight",
 
     )
 
-    plt.close("all")
+    plt.close()
+
+    del explanation
+    del temp
+    del mask
+    del explanation_image
 
     print(
 
