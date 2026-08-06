@@ -111,7 +111,7 @@ def generate_explanation(
 
         hide_color=0,
 
-        num_samples=1000,
+        num_samples=100,
 
     )
 
