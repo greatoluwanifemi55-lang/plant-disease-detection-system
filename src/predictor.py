@@ -302,16 +302,16 @@ def predict_image(image_path):
 
     print("Starting LIME")
 
-    generate_explanation(
-    image_path,
-    explanation_path
-  )
+    #generate_explanation(
+    #image_path,
+    #explanation_path
+  #)
 
-    print("LIME complete")
+    #print("LIME complete")
 
-    print("=" * 60)
-    print("STEP 4: LIME Finished")
-    print("=" * 60)
+    #print("=" * 60)
+    #print("STEP 4: LIME Finished")
+    #print("=" * 60)
 
     total_time = time.time() - start_time
         # ======================================================
