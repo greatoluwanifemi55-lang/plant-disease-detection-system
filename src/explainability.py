@@ -61,14 +61,17 @@ def preprocess_image(image_path):
 
     return image
 
+# ==========================================================
+# GLOBAL MODEL
+# ==========================================================
+
+lime_model = None
 
 # ==========================================================
 # PREDICTION FUNCTION
 # ==========================================================
 
 def predict(images):
-
-    global lime_model
 
     images = np.array(images)
 
@@ -87,46 +90,31 @@ def generate_explanation(
     save_path,
 ):
 
-    image = preprocess_image(
+    global lime_model
+    lime_model = model
 
-        image_path
-
-    )
+    image = preprocess_image(image_path)
 
     explainer = lime_image.LimeImageExplainer()
 
     explanation = explainer.explain_instance(
-
         image.astype("double"),
-
         predict,
-
         top_labels=1,
-
         hide_color=0,
-
         num_samples=30,
-
     )
 
     temp, mask = explanation.get_image_and_mask(
-
         explanation.top_labels[0],
-
         positive_only=True,
-
         num_features=5,
-
         hide_rest=False,
-
     )
 
     explanation_image = mark_boundaries(
-
         temp / 255.0,
-
         mask,
-
     )
         # ======================================================
     # SAVE IMAGE

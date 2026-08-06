@@ -280,9 +280,9 @@ def predict_image(image_path):
     print("Starting LIME")
 
     generate_explanation(
-    model,
-    image_path,
-    explanation_path
+         model,
+         image_path,
+         explanation_path
   )
 
     print("LIME complete")
