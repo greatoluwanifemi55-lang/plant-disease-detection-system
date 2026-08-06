@@ -66,15 +66,16 @@ def load_model():
     if model is None:
 
         print("=" * 60)
+        print("Loading Federated Model...", flush=True)
 
-        print("Loading Federated Model...")
+        print(f"Model path: {GLOBAL_MODEL_PATH}", flush=True)
+        print(f"Model exists: {GLOBAL_MODEL_PATH.exists()}", flush=True)
 
         model = tf.keras.models.load_model(
             GLOBAL_MODEL_PATH
         )
 
-        print("Model Loaded Successfully")
-
+        print("Model Loaded Successfully", flush=True)
         print("=" * 60)
 
     return model
