@@ -1,269 +1,166 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
+{% block title %}
 
-    <meta charset="UTF-8">
+Prediction Result | FED-XAI V2
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+{% endblock %}
 
-    <title>Prediction Result</title>
+{% block content %}
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
-        rel="stylesheet">
+<section class="result-hero">
 
-</head>
+<div class="container">
 
-<body>
+<div class="d-flex justify-content-between align-items-center mb-5">
 
-<div class="container py-5">
+<h2 class="fw-bold text-success">
 
-    <div class="row justify-content-center">
+<i class="bi bi-cpu-fill"></i>
 
-        <div class="col-md-7">
+FED-XAI V2
 
-            <div class="card shadow">
+</h2>
 
-                <div class="card-body p-5">
+<a href="/" class="btn btn-success btn-lg">
 
-                    <h2 class="text-center text-success mb-4">
+<i class="bi bi-arrow-left"></i>
 
-                        🌿 Prediction Result
+New Prediction
 
-                    </h2>
-                    
-               
-                    <hr>
-
-                    <div class="text-center mb-4">
-
-    <img
-    src="{{ url_for('static', filename='uploads/' + image) }}"
-    alt="Uploaded Leaf"
-    class="img-fluid rounded-4 shadow-lg border border-3 border-success"
-    style="
-        max-height:350px;
-        object-fit:cover;
-        transition:0.3s;
-    ">
-</div>
-
-                    {% if "Healthy" in result.disease %}
-
-<div class="alert alert-success">
-
-    <h4 class="alert-heading">
-
-        🌿 Healthy Leaf
-
-    </h4>
-
-    <p class="mb-0">
-
-        {{ result.disease }}
-
-    </p>
+</a>
 
 </div>
 
-{% else %}
+<div class="text-center mb-5">
 
-<div class="alert alert-danger">
+<div class="success-icon">
 
-    <h4 class="alert-heading">
-
-        🦠 Disease Detected
-
-    </h4>
-
-    <p class="mb-0">
-
-        {{ result.disease }}
-
-    </p>
+<i class="bi bi-check-circle-fill"></i>
 
 </div>
 
-{% endif %}
+<h1 class="result-title">
 
-                    <div class="mb-4">
+Prediction Complete
 
-    <strong>Confidence</strong>
+</h1>
 
-    <div class="progress mt-2" style="height: 28px;">
+<h2 class="disease-name">
 
-        <div
-            class="progress-bar bg-success progress-bar-striped progress-bar-animated"
-            role="progressbar"
-            style="width: {{ result.confidence }}%;"
-            aria-valuenow="{{ result.confidence }}"
-            aria-valuemin="0"
-            aria-valuemax="100">
+{{ result.disease }}
 
-            {{ "%.2f"|format(result.confidence) }}%
+</h2>
+
+<div class="confidence-card">
+
+    <div class="confidence-number">
+
+        {{ "%.2f"|format(result.confidence) }}%
+
+    </div>
+
+    <div class="confidence-label">
+
+        AI Confidence
+
+    </div>
+
+</div>
+
+</div>
+
+<div class="row g-4 mb-5">
+
+    <!-- Uploaded Image -->
+
+    <div class="col-lg-6">
+
+        <div class="result-card">
+
+            <h3 class="section-title">
+
+                <i class="bi bi-image-fill"></i>
+
+                Uploaded Image
+
+            </h3>
+
+            <img
+            src="{{ url_for('uploaded_file', filename=result.image) }}"
+            class="result-image"
+            alt="Uploaded Leaf">
+
+        </div>
+
+    </div>
+
+    <!-- LIME Explanation -->
+
+    <div class="col-lg-6">
+
+        <div class="result-card">
+
+            <h3 class="section-title">
+
+                <i class="bi bi-lightbulb-fill"></i>
+
+                AI Explanation
+
+            </h3>
+
+            <img
+
+                src="{{ url_for('static', filename='explanations/' + result.explanation) }}"
+
+                class="result-image"
+
+                alt="LIME Explanation">
+
+            <p class="lime-text">
+
+                Highlighted regions show the areas that most influenced the AI's prediction.
+
+            </p>
 
         </div>
 
     </div>
 
 </div>
+<div class="mb-5">
 
-<h4 class="mt-5 mb-3">
+    <h3 class="section-title mb-4">
 
-    Top 3 Predictions
+        <i class="bi bi-trophy-fill"></i>
 
-</h4>
+        Top Predictions
 
-<div class="list-group">
+    </h3>
 
-    {% for prediction in result.top_predictions %}
+    <div class="row g-4">
 
-    <div
-        class="list-group-item d-flex justify-content-between align-items-center">
+        {% for prediction in result.top_predictions %}
 
-        <span>
+        <div class="col-md-4">
 
-            {{ prediction.disease }}
+            <div class="prediction-card">
 
-        </span>
+                <div class="rank">
 
-        <span class="badge bg-success rounded-pill">
+                    #{{ loop.index }}
 
-            {{ "%.2f"|format(prediction.confidence) }}%
+                </div>
 
-        </span>
+                <h4>
 
-    </div>
+                    {{ prediction.disease }}
 
-    {% endfor %}
+                </h4>
 
-</div>
+                <div class="prediction-score">
 
-<hr>
-
-<h4 class="mt-4 mb-3">
-
-    💡 Recommended Actions
-
-</h4>
-
-<ul class="list-group mb-4">
-
-    {% for recommendation in result.recommendation %}
-
-    <li class="list-group-item">
-
-        ✅ {{ recommendation }}
-
-    </li>
-
-    {% endfor %}
-
-</ul>
-
-<hr>
-
-<div class="card border-success shadow-sm mb-4">
-
-    <div class="card-header bg-success text-white">
-
-        <h4 class="mb-0">
-
-            🌐 AI Model Information
-
-        </h4>
-
-    </div>
-
-    <div class="card-body">
-
-        <div class="row">
-
-            <div class="col-md-6">
-
-                <p><strong>Model Architecture:</strong><br>
-                MobileNetV2</p>
-
-                <p><strong>Training Method:</strong><br>
-                Federated Learning (FedAvg)</p>
-
-                <p><strong>Participating Clients:</strong><br>
-                Oyo, Kaduna, Benue</p>
-
-            </div>
-
-            <div class="col-md-6">
-
-                <p><strong>Federated Rounds:</strong><br>
-                10</p>
-
-                <p><strong>Global Validation Accuracy:</strong><br>
-                93.00%</p>
-
-                <p><strong>Explainability:</strong><br>
-                LIME Enabled</p>
-
-            </div>
-
-        </div>
-
-        <hr>
-
-        <div class="alert alert-info mb-0">
-
-            <strong>About this prediction</strong><br>
-
-            This disease prediction was generated using a
-            <strong>Federated Learning</strong> model trained with the
-            <strong>FedAvg</strong> algorithm. Three independent agricultural datasets
-            (Oyo, Kaduna, and Benue) were used to train local models, and only the
-            learned model parameters were aggregated to produce the final global model.
-            The raw datasets were never merged into a single central dataset.
-
-        </div>
-
-    </div>
-
-</div>
-
-<hr>
-
-<h4 class="mt-4 mb-3">
-
-    🧠 Explainable AI (LIME)
-
-</h4>
-
-<p class="text-muted">
-
-    The highlighted regions indicate the parts of the leaf that contributed most to the AI's prediction.
-
-</p>
-
-<div class="text-center mb-4">
-
-    <img
-        src="{{ url_for('static', filename='explanations/' + result.explanation) }}"
-        alt="LIME Explanation"
-        class="img-fluid rounded shadow border border-2 border-success"
-        style="max-width:600px;">
-
-</div>
-                    <hr>
-
-                    <div class="text-center">
-
-                        <a
-                            href="/"
-                            class="btn btn-success btn-lg">
-
-                            Predict Another Image
-
-                        </a>
-
-                    </div>
+                    {{ "%.2f"|format(prediction.confidence) }}%
 
                 </div>
 
@@ -271,9 +168,68 @@
 
         </div>
 
+        {% endfor %}
+
     </div>
 
 </div>
+<div class="mb-5">
 
-</body>
-</html>
+    <h3 class="section-title mb-4">
+
+        <i class="bi bi-check2-circle"></i>
+
+        Recommended Actions
+
+    </h3>
+
+    <div class="row g-3">
+
+        {% for recommendation in result.recommendation %}
+
+        <div class="col-md-6">
+
+            <div class="recommendation-card">
+
+                <div class="recommendation-icon">
+
+                    <i class="bi bi-check-circle-fill"></i>
+
+                </div>
+
+                <div class="recommendation-text">
+
+                    {{ recommendation }}
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+<div class="text-center mt-5 mb-5">
+
+    <a
+
+        href="/"
+
+        class="btn btn-success btn-lg px-5 py-3">
+
+        <i class="bi bi-arrow-repeat"></i>
+
+        Analyze Another Leaf
+
+    </a>
+
+</div>
+
+</div>
+
+</section>
+
+{% endblock %}

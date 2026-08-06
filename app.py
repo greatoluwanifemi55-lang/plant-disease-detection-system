@@ -1,72 +1,171 @@
+from pathlib import Path
+
 from flask import (
     Flask,
     render_template,
-    request
+    request,
+    send_from_directory,
 )
 
-from pathlib import Path
+from werkzeug.utils import secure_filename
 
 from src.predictor import predict_image
 
+from src.config import (
+    UPLOADS_DIR,
+    ALLOWED_EXTENSIONS,
+)
+
+# ==========================================================
+# FLASK APP
+# ==========================================================
 
 app = Flask(__name__)
 
-# ==========================================
-# UPLOAD FOLDER
-# ==========================================
+app.config["UPLOAD_FOLDER"] = str(UPLOADS_DIR)
 
-UPLOAD_FOLDER = Path("static/uploads")
-UPLOAD_FOLDER.mkdir(exist_ok=True)
-
-
-# ==========================================
-# HOME PAGE
-# ==========================================
-
-@app.route("/")
-def home():
-
-    return render_template("index.html")
-
-
-# ==========================================
-# PREDICT
-# ==========================================
-
-@app.route("/predict", methods=["POST"])
-def predict():
-
-    # Receive uploaded image
-    image = request.files["image"]
-
-    # Save image
-    save_path = UPLOAD_FOLDER / image.filename
-
-    image.save(save_path)
-
-    # Show information in terminal
-    print("=" * 50)
-    print("IMAGE RECEIVED")
-    print("=" * 50)
-    print("Filename :", image.filename)
-    print("Saved To :", save_path)
-    print("Content Type :", image.content_type)
-
-    # Run AI prediction
-    result = predict_image(save_path)
-
-    # Display result in browser
-    return render_template(
-    "result.html",
-    result=result,
-    image=image.filename
+UPLOADS_DIR.mkdir(
+    parents=True,
+    exist_ok=True,
 )
 
+# ==========================================================
+# CHECK FILE TYPE
+# ==========================================================
 
-# ==========================================
-# START FLASK
-# ==========================================
+def allowed_file(filename):
+
+    return (
+
+        "." in filename
+
+        and
+
+        filename.rsplit(".", 1)[1].lower()
+
+        in ALLOWED_EXTENSIONS
+
+    )
+
+# ==========================================================
+# HOME PAGE
+# ==========================================================
+
+@app.route("/")
+
+def home():
+
+    return render_template(
+
+        "index.html"
+
+    )
+
+from flask import send_from_directory
+
+# ==========================================================
+# SERVE UPLOADED IMAGES
+# ==========================================================
+
+@app.route("/uploads/<filename>")
+def uploaded_file(filename):
+
+    return send_from_directory(
+
+        UPLOADS_DIR,
+
+        filename
+
+    )
+
+# ==========================================================
+# PREDICT
+# ==========================================================
+
+@app.route(
+
+    "/predict",
+
+    methods=["POST"]
+
+)
+
+def predict():
+
+    if "image" not in request.files:
+
+        return render_template(
+
+            "index.html",
+
+            error="Please upload an image."
+
+        )
+
+    file = request.files["image"]
+
+    if file.filename == "":
+
+        return render_template(
+
+            "index.html",
+
+            error="No image selected."
+
+        )
+
+    if not allowed_file(file.filename):
+
+        return render_template(
+
+            "index.html",
+
+            error="Unsupported image format."
+
+        )
+
+    filename = secure_filename(
+
+        file.filename
+
+    )
+
+    image_path = (
+
+        UPLOADS_DIR /
+
+        filename
+
+    )
+
+    file.save(
+
+        image_path
+
+    )
+
+    result = predict_image(
+
+        image_path
+
+    )
+
+    return render_template(
+
+        "result.html",
+
+        result=result
+
+    )
+
+# ==========================================================
+# RUN APPLICATION
+# ==========================================================
 
 if __name__ == "__main__":
 
-    app.run(debug=True)
+    app.run(
+
+        debug=True
+
+    )

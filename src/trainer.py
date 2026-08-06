@@ -1,116 +1,156 @@
+"""
+==========================================================
+FED-XAI V2
+
+Module:
+Trainer
+
+Project:
+Federated Explainable AI Framework for Plant Disease
+Detection Using Transfer Learning
+
+Authors:
+- Okposio Great
+- Adegbola Victor
+
+Description:
+Trains the deep learning model and saves the
+best performing model together with the
+training history.
+
+==========================================================
+"""
+
 import json
 
 import tensorflow as tf
 
-from config import (
-    MODEL_DIR,
-    RESULTS_DIR,
+from src.config import (
     MODEL_NAME,
+    MODELS_DIR,
+    RESULTS_DIR,
     EPOCHS,
-    LEARNING_RATE
+    EARLY_STOPPING_PATIENCE,
+    REDUCE_LR_PATIENCE,
+    REDUCE_LR_FACTOR,
+    MIN_LEARNING_RATE,
 )
 
-from data_loader import load_datasets
-from model_builder import build_model
-train_dataset, validation_dataset, class_names = load_datasets()
+from src.data_loader import load_datasets
 
-model = build_model(len(class_names))
-print("\n" + "=" * 50)
-print("MODEL SUMMARY")
-print("=" * 50)
+from src.model_builder import build_model
 
-model.summary()
-model.compile(
 
-    optimizer=tf.keras.optimizers.Adam(
-        learning_rate=LEARNING_RATE
-    ),
+# ==========================================================
+# TRAIN MODEL
+# ==========================================================
 
-    loss="sparse_categorical_crossentropy",
+def train():
 
-    metrics=["accuracy"]
+    (
+        train_dataset,
+        validation_dataset,
+        test_dataset,
+        class_names,
+        num_classes,
+    ) = load_datasets()
 
-)
-print("\nModel compiled successfully.")
-checkpoint = tf.keras.callbacks.ModelCheckpoint(
+    model = build_model(num_classes)
 
-    MODEL_DIR / f"{MODEL_NAME}_best.keras",
+    print("\n" + "=" * 60)
+    print(f"Training {MODEL_NAME}")
+    print("=" * 60)
 
-    monitor="val_accuracy",
+    # ------------------------------------------------------
+    # CALLBACKS
+    # ------------------------------------------------------
 
-    save_best_only=True,
+    checkpoint = tf.keras.callbacks.ModelCheckpoint(
 
-    verbose=1
+        filepath=MODELS_DIR / f"{MODEL_NAME}.keras",
 
-)
-early_stop = tf.keras.callbacks.EarlyStopping(
+        monitor="val_accuracy",
 
-    monitor="val_loss",
+        save_best_only=True,
 
-    patience=3,
+        verbose=1,
 
-    restore_best_weights=True
-
-)
-reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(
-
-    monitor="val_loss",
-
-    factor=0.2,
-
-    patience=2,
-
-    min_lr=1e-7
-
-)
-history = model.fit(
-
-    train_dataset,
-
-    validation_data=validation_dataset,
-
-    epochs=EPOCHS,
-
-    callbacks=[
-
-        checkpoint,
-
-        early_stop,
-
-        reduce_lr
-
-    ]
-
-)
-
-# ==================================================
-# SAVE TRAINING HISTORY
-# ==================================================
-
-history_dict = history.history
-
-RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-
-metrics_dir = RESULTS_DIR / "metrics"
-
-metrics_dir.mkdir(parents=True, exist_ok=True)
-
-history_file = metrics_dir / "training_history.json"
-
-with open(history_file, "w") as file:
-
-    json.dump(
-        history_dict,
-        file,
-        indent=4
     )
 
-print("\nTraining history saved to:")
-print(history_file)
+    early_stop = tf.keras.callbacks.EarlyStopping(
 
-print("\n" + "=" * 50)
-print("TRAINING COMPLETED SUCCESSFULLY")
-print("=" * 50)
+        monitor="val_loss",
 
-print(f"Best model saved to:")
-print(MODEL_DIR / f"{MODEL_NAME}_best.keras")
+        patience=EARLY_STOPPING_PATIENCE,
+
+        restore_best_weights=True,
+
+        verbose=1,
+
+    )
+
+    reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(
+
+        monitor="val_loss",
+
+        factor=REDUCE_LR_FACTOR,
+
+        patience=REDUCE_LR_PATIENCE,
+
+        min_lr=MIN_LEARNING_RATE,
+
+        verbose=1,
+
+    )
+
+    # ------------------------------------------------------
+    # TRAIN
+    # ------------------------------------------------------
+
+    history = model.fit(
+
+        train_dataset,
+
+        validation_data=validation_dataset,
+
+        epochs=EPOCHS,
+
+        callbacks=[
+
+            checkpoint,
+
+            early_stop,
+
+            reduce_lr,
+
+        ],
+
+    )
+
+    # ------------------------------------------------------
+    # SAVE TRAINING HISTORY
+    # ------------------------------------------------------
+
+    history_path = RESULTS_DIR / f"{MODEL_NAME}_history.json"
+
+    with open(history_path, "w") as file:
+
+        json.dump(history.history, file)
+
+    print("\n" + "=" * 60)
+    print("Training Completed Successfully")
+    print("=" * 60)
+
+    print(f"Best Model Saved To : {MODELS_DIR}")
+    print(f"History Saved To    : {history_path}")
+
+    return model, history, class_names
+
+
+# ==========================================================
+# MAIN
+# ==========================================================
+
+if __name__ == "__main__":
+
+    train()

@@ -1,142 +1,113 @@
-# ==================================================
-# PLANT DISEASE TREATMENT RECOMMENDATIONS
-# ==================================================
+"""
+==========================================================
+FED-XAI V2
+
+Treatment Recommendations
+
+Authors:
+- Okposio Great
+- Adegbola Victor
+==========================================================
+"""
 
 recommendations = {
 
     "Pepper Bell Bacterial Spot": [
-
         "Remove infected leaves immediately.",
         "Avoid overhead irrigation.",
-        "Apply a copper-based bactericide.",
-        "Use disease-free seeds for future planting."
-
+        "Apply copper-based bactericides.",
+        "Use certified disease-free seeds.",
+        "Practice crop rotation."
     ],
 
     "Pepper Bell Healthy": [
-
         "No disease detected.",
-        "Continue proper watering practices.",
-        "Apply balanced fertilizer regularly.",
-        "Inspect leaves weekly for early disease detection."
-
+        "Maintain regular irrigation.",
+        "Apply balanced fertilizer.",
+        "Continue monitoring plant health."
     ],
 
     "Potato Early Blight": [
-
-        "Remove infected leaves.",
-        "Apply a recommended fungicide.",
-        "Avoid excessive leaf moisture.",
-        "Rotate crops to reduce disease buildup."
-
+        "Apply Mancozeb or Chlorothalonil fungicide.",
+        "Remove infected foliage.",
+        "Avoid excessive leaf wetness.",
+        "Practice crop rotation."
     ],
 
     "Potato Late Blight": [
-
         "Destroy infected plants immediately.",
-        "Apply suitable fungicides.",
-        "Avoid prolonged leaf wetness.",
-        "Plant certified disease-free seed potatoes."
-
+        "Spray systemic fungicides.",
+        "Reduce humidity around crops.",
+        "Monitor nearby plants."
     ],
 
     "Potato Healthy": [
-
-        "No disease detected.",
-        "Maintain good irrigation practices.",
-        "Continue regular fertilization.",
-        "Monitor plants regularly."
-
+        "Plant appears healthy.",
+        "Maintain good nutrition.",
+        "Continue routine inspection."
     ],
 
     "Tomato Bacterial Spot": [
-
         "Remove infected leaves.",
-        "Avoid working with wet plants.",
-        "Apply copper-based bactericides.",
-        "Practice crop rotation."
-
+        "Avoid handling wet plants.",
+        "Apply copper-based sprays.",
+        "Practice field sanitation."
     ],
 
     "Tomato Early Blight": [
-
-        "Prune infected leaves.",
-        "Apply fungicides as recommended.",
-        "Reduce leaf wetness.",
-        "Improve air circulation around plants."
-
+        "Apply fungicide.",
+        "Improve air circulation.",
+        "Avoid overhead watering.",
+        "Remove infected leaves."
     ],
 
     "Tomato Late Blight": [
-
-        "Remove infected plants immediately.",
-        "Apply approved fungicides.",
-        "Avoid overhead watering.",
-        "Monitor nearby plants closely."
-
+        "Destroy infected plants.",
+        "Apply recommended fungicides.",
+        "Reduce field humidity.",
+        "Monitor neighboring plants."
     ],
 
     "Tomato Leaf Mold": [
-
-        "Increase greenhouse ventilation.",
-        "Reduce humidity.",
-        "Apply fungicides if necessary.",
-        "Remove infected foliage."
-
+        "Increase ventilation.",
+        "Reduce greenhouse humidity.",
+        "Apply fungicide if necessary."
     ],
 
     "Tomato Septoria Leaf Spot": [
-
         "Remove infected leaves.",
-        "Avoid overhead irrigation.",
-        "Apply fungicides.",
-        "Keep the field clean."
-
+        "Avoid splashing water.",
+        "Apply fungicide."
     ],
 
     "Tomato Spider Mites Two Spotted Spider Mite": [
-
-        "Spray plants with water to reduce mites.",
-        "Use appropriate miticides if necessary.",
-        "Remove heavily infested leaves.",
+        "Increase humidity.",
+        "Apply miticide if required.",
         "Encourage beneficial insects."
-
     ],
 
     "Tomato Target Spot": [
-
-        "Remove infected leaves.",
-        "Apply fungicides.",
-        "Improve field sanitation.",
-        "Reduce plant overcrowding."
-
+        "Apply fungicide.",
+        "Improve air circulation.",
+        "Reduce excessive watering."
     ],
 
-    "Tomato Tomato Yellow Leaf Curl Virus": [
-
-        "Remove infected plants.",
+    "Tomato Tomato Yellowleaf Curl Virus": [
         "Control whiteflies.",
-        "Use resistant tomato varieties.",
-        "Keep weeds under control."
-
+        "Remove infected plants.",
+        "Use resistant varieties."
     ],
 
     "Tomato Tomato Mosaic Virus": [
-
-        "Remove infected plants.",
-        "Disinfect gardening tools.",
-        "Avoid handling plants after tobacco use.",
-        "Use virus-free seeds."
-
+        "Destroy infected plants.",
+        "Disinfect farming tools.",
+        "Avoid tobacco contamination."
     ],
 
     "Tomato Healthy": [
-
-        "No disease detected.",
-        "Maintain proper watering.",
-        "Continue routine fertilization.",
-        "Inspect plants weekly."
-
+        "Plant appears healthy.",
+        "Maintain balanced nutrition.",
+        "Continue regular monitoring."
     ]
 
 }

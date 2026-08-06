@@ -1,202 +1,207 @@
-import tensorflow as tf
-import numpy as np
+"""
+==========================================================
+FED-XAI V2
+
+Module:
+Prediction Engine
+
+Project:
+Federated Explainable AI Framework for Plant Disease
+Detection Using Transfer Learning
+
+Authors:
+- Okposio Great
+- Adegbola Victor
+
+==========================================================
+"""
+
+import time
 
 from pathlib import Path
 
-from src.recommendations import recommendations
+import numpy as np
 
-from src.explainability import generate_explanation
+import tensorflow as tf
 
-from keras.utils import load_img, img_to_array
+from keras.utils import (
+    load_img,
+    img_to_array,
+)
 
 from .config import (
-    MODEL_DIR,
+    MODELS_DIR,
     MODEL_NAME,
     IMAGE_SIZE,
-    TEST_DIR
-)
-
-# ==================================================
-# LOAD TRAINED MODEL
-# ==================================================
-
-# ==================================================
-# LOAD FEDERATED MODEL
-# ==================================================
-
-FEDERATED_MODEL = Path("models") / "best_global_model.keras"
-
-model = tf.keras.models.load_model(
-    FEDERATED_MODEL
-)
-print("\nMODEL LAYERS")
-print("=" * 50)
-
-for layer in model.layers:
-    print(layer.name)
-    print("\nMOBILENETV2 INTERNAL LAYERS")
-print("=" * 50)
-
-base_model = model.get_layer("mobilenetv2_1.00_224")
-
-for layer in base_model.layers:
-    print(layer.name)
-
-print("=" * 50)
-print("Model Loaded Successfully")
-print("=" * 50)
-
-# ==================================================
-# LOAD CLASS NAMES
-# ==================================================
-
-dataset = tf.keras.utils.image_dataset_from_directory(
     TEST_DIR,
-    shuffle=False
+    EXPLANATIONS_DIR,
 )
 
-class_names = dataset.class_names
+from .recommendations import recommendations
 
-print("Classes Loaded Successfully")
-print("=" * 50)
+from .explainability import generate_explanation
 
-# ==================================================
+# ==========================================================
+# GLOBAL MODEL
+# ==========================================================
+
+GLOBAL_MODEL_PATH = (
+    MODELS_DIR /
+    "best_global_model.keras"
+)
+
+model = None
+
+class_names = None
+# ==========================================================
+# LOAD MODEL
+# ==========================================================
+
+def load_model():
+
+    global model
+
+    if model is None:
+
+        print("=" * 60)
+
+        print("Loading Federated Model...")
+
+        model = tf.keras.models.load_model(
+            GLOBAL_MODEL_PATH
+        )
+
+        print("Model Loaded Successfully")
+
+        print("=" * 60)
+
+    return model
+
+
+# ==========================================================
+# LOAD CLASS NAMES
+# ==========================================================
+
+def load_class_names():
+
+    global class_names
+
+    if class_names is None:
+
+        dataset = tf.keras.utils.image_dataset_from_directory(
+
+            TEST_DIR,
+
+            shuffle=False,
+
+            batch_size=32,
+
+            image_size=IMAGE_SIZE,
+
+        )
+
+        class_names = dataset.class_names
+
+    return class_names
+# ==========================================================
 # IMAGE PREPROCESSING
-# ==================================================
+# ==========================================================
 
 def preprocess_image(image_path):
 
     image = load_img(
+
         image_path,
-        target_size=IMAGE_SIZE
+
+        target_size=IMAGE_SIZE,
+
     )
 
     image = img_to_array(image)
 
-    image = image / 255.0
-
     image = np.expand_dims(
+
         image,
-        axis=0
+
+        axis=0,
+
     )
 
     return image
 
 
-# ==================================================
-# SELECT TEST IMAGE
-# ==================================================
+# ==========================================================
+# FORMAT DISEASE NAME
+# ==========================================================
 
-def select_test_image():
+def format_disease_name(name):
 
-    image_folder = Path("../test_images")
+    name = name.replace("___", " ")
 
-    image_files = sorted([
-        file for file in image_folder.iterdir()
-        if file.suffix.lower() in [".jpg", ".jpeg", ".png"]
-    ])
+    name = name.replace("__", " ")
 
-    if len(image_files) == 0:
-        raise FileNotFoundError(
-            "No images found inside test_images folder."
-        )
+    name = name.replace("_", " ")
 
-    print("\n" + "=" * 50)
-    print("AVAILABLE TEST IMAGES")
-    print("=" * 50)
+    words = name.split()
 
-    for index, file in enumerate(image_files, start=1):
-        print(f"{index}. {file.name}")
+    formatted = []
 
-    print("=" * 50)
+    for word in words:
 
-    choice = int(input("Select image number: "))
+        if (
 
-    return image_files[choice - 1]
+            formatted
 
-# ==================================================
+            and word.lower() == formatted[0].lower()
+
+        ):
+
+            continue
+
+        formatted.append(word)
+
+    return " ".join(formatted).title()
+# ==========================================================
 # PREDICT DISEASE
-# ==================================================
+# ==========================================================
 
 def predict_disease(image):
 
-    prediction = model.predict(
-        image,
-        verbose=0
-    )
+    model = load_model()
 
-    print(prediction)
-
-    return prediction
-
-# ==================================================
-# PREDICT DISEASE
-# ==================================================
-
-def predict_disease(image):
+    classes = load_class_names()
 
     prediction = model.predict(
+
         image,
-        verbose=0
+
+        verbose=0,
+
     )[0]
 
-    predicted_index = np.argmax(prediction)
+    predicted_index = np.argmax(
 
-    confidence = np.max(prediction)
+        prediction
+
+    )
+
+    confidence = float(
+
+        prediction[predicted_index]
+
+    )
 
     disease = format_disease_name(
-    class_names[predicted_index]
-)
 
-    top3_indices = np.argsort(prediction)[::-1][:3]
+        classes[predicted_index]
 
-    return (
-        disease,
-        confidence,
-        prediction,
-        top3_indices
     )
 
+    top3_indices = np.argsort(
 
-# ==================================================
-# PREDICT IMAGE
-# ==================================================
+        prediction
 
-def predict_image(image_path):
-
-    # Preprocess the image
-    image = preprocess_image(image_path)
-
-    # Get prediction from the model
-    disease, confidence, prediction, top3_indices = predict_disease(image)
-
-    # Get recommendations
-    recommendation = recommendations.get(
-        disease,
-        ["No recommendation available."]
-    )
-
-    # ==========================================
-    # GENERATE LIME EXPLANATION
-    # ==========================================
-
-    from pathlib import Path
-
-    EXPLANATION_FOLDER = Path("static/explanations")
-    EXPLANATION_FOLDER.mkdir(parents=True, exist_ok=True)
-
-    explanation_filename = f"{image_path.stem}_lime.png"
-
-    explanation_path = EXPLANATION_FOLDER / explanation_filename
-
-    generate_explanation(
-        image_path,
-        explanation_path
-    )
-
-    # ==========================================
-    # TOP 3 PREDICTIONS
-    # ==========================================
+    )[::-1][:3]
 
     top_predictions = []
 
@@ -205,22 +210,175 @@ def predict_image(image_path):
         top_predictions.append(
 
             {
+
                 "disease": format_disease_name(
-                    class_names[index]
+
+                    classes[index]
+
                 ),
 
-                "confidence": prediction[index] * 100
+                "confidence": float(
+
+                    prediction[index] * 100
+
+                ),
+
             }
 
         )
 
-    # ==========================================
-    # RETURN RESULTS
-    # ==========================================
+    return (
+
+        disease,
+
+        confidence,
+
+        top_predictions,
+
+    )
+# ==========================================================
+# PREDICT IMAGE
+# ==========================================================
+
+def predict_image(image_path):
+
+    start_time = time.time()
+
+    image = preprocess_image(
+
+        image_path
+
+    )
+
+    model_start = time.time()
+
+    disease, confidence, top_predictions = predict_disease(
+
+        image
+
+    )
+
+    model_time = time.time() - model_start
+
+    recommendation = recommendations.get(
+
+        disease,
+
+        ["No recommendation available."]
+
+    )
+
+    EXPLANATIONS_DIR.mkdir(
+
+        parents=True,
+
+        exist_ok=True
+
+    )
+
+    explanation_filename = (
+
+        f"{Path(image_path).stem}_lime.png"
+
+    )
+
+    explanation_path = (
+
+        EXPLANATIONS_DIR /
+
+        explanation_filename
+
+    )
+
+    generate_explanation(
+
+        image_path,
+
+        explanation_path
+
+    )
+
+    total_time = time.time() - start_time
+        # ======================================================
+    # BACKEND LOG
+    # ======================================================
+
+    print("\n" + "=" * 70)
+
+    print("FED-XAI V2")
+
+    print("=" * 70)
+
+    print(f"Image               : {Path(image_path).name}")
+
+    print(f"Disease             : {disease}")
+
+    print(f"Confidence          : {confidence * 100:.2f}%")
+
+    print("\nTop 3 Predictions")
+
+    print("-" * 70)
+
+    for i, prediction in enumerate(
+
+        top_predictions,
+
+        start=1
+
+    ):
+
+        print(
+
+            f"{i}. "
+
+            f"{prediction['disease']:<45}"
+
+            f"{prediction['confidence']:.2f}%"
+
+        )
+
+    print("\nRecommendations")
+
+    print("-" * 70)
+
+    for item in recommendation:
+
+        print(f"• {item}")
+
+    print("\nExplainability")
+
+    print("-" * 70)
+
+    print(
+
+        f"LIME Output : {explanation_filename}"
+
+    )
+
+    print("\nPerformance")
+
+    print("-" * 70)
+
+    print(
+
+        f"Inference Time : {model_time:.2f}s"
+
+    )
+
+    print(
+
+        f"Total Time     : {total_time:.2f}s"
+
+    )
+
+    print("=" * 70)
+        # ======================================================
+    # RETURN TO FLASK
+    # ======================================================
 
     return {
 
-        "image": image_path.name,
+        "image": Path(image_path).name,
 
         "disease": disease,
 
@@ -230,71 +388,69 @@ def predict_image(image_path):
 
         "recommendation": recommendation,
 
-        "explanation": explanation_filename
+        "explanation": explanation_filename,
+
+        "model": MODEL_NAME,
+
+        "aggregation": "FedAvg",
+
+        "clients": "Oyo, Kaduna, Benue",
+
+        "rounds": 10,
+
+        "accuracy": "95.09%",
+
+        "xai": "LIME"
 
     }
 
 
-# ==================================================
-# FORMAT DISEASE NAME
-# ==================================================
-
-def format_disease_name(name):
-
-    # Replace dataset separators
-    name = name.replace("___", " ")
-    name = name.replace("__", " ")
-    name = name.replace("_", " ")
-
-    words = name.split()
-
-    cleaned_words = []
-
-    for word in words:
-
-        if not cleaned_words:
-            cleaned_words.append(word)
-            continue
-
-        if (
-            word.lower() == cleaned_words[0].lower()
-            and len(cleaned_words) == 1
-        ):
-            continue
-
-        cleaned_words.append(word)
-
-    return " ".join(cleaned_words).title()
-
-# ==================================================
-# MAIN PROGRAM
-# ==================================================
+# ==========================================================
+# TEST PREDICTOR
+# ==========================================================
 
 if __name__ == "__main__":
 
-    image_path = select_test_image()
+    print("=" * 60)
 
-    result = predict_image(image_path)
+    print("FED-XAI V2 Prediction Engine")
 
-    print("\n" + "=" * 50)
-    print("PLANT DISEASE PREDICTION")
-    print("=" * 50)
+    print("=" * 60)
 
-    print(f"Image : {result['image']}")
+    test_folder = TEST_DIR
 
-    print("\nBest Prediction")
-    print(f"Disease   : {result['disease']}")
-    print(f"Confidence: {result['confidence']:.2f}%")
+    image_files = list(test_folder.rglob("*.jpg"))
 
-    print("\nTop 3 Predictions")
-    print("-" * 50)
+    if len(image_files) == 0:
 
-    for i, prediction in enumerate(result["top_predictions"], start=1):
+        image_files = list(test_folder.rglob("*.png"))
 
-     print(
-        f"{i}. "
-        f"{prediction['disease']:40}"
-        f"{prediction['confidence']:.2f}%"
-    )
+    if len(image_files) == 0:
 
-    print("=" * 50)
+        print("No test images found.")
+
+    else:
+
+        result = predict_image(
+
+            image_files[0]
+
+        )
+
+        print("\nPrediction Summary")
+
+        print("-" * 60)
+
+        print(
+
+            f"Disease : {result['disease']}"
+
+        )
+
+        print(
+
+            f"Confidence : {result['confidence']:.2f}%"
+
+        )
+
+        print("=" * 60)
