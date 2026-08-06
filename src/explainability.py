@@ -90,9 +90,9 @@ def generate_explanation(
 
     segments = quickshift(
         image,
-        kernel_size=3,
-        max_dist=6,
-        ratio=0.5,
+        kernel_size=2,
+        max_dist=12,
+        ratio=0.9,
     )
 
     explanation = explainer.explain_instance(
@@ -106,8 +106,8 @@ def generate_explanation(
 
     temp, mask = explanation.get_image_and_mask(
         explanation.top_labels[0],
-        positive_only=False,
-        num_features=20,
+        positive_only=True,
+        num_features=8,
         hide_rest=False,
     )
 
