@@ -103,26 +103,27 @@ def load_class_names():
 
 def preprocess_image(image_path):
 
+    print("Loading image...", flush=True)
+
     image = load_img(
-
         image_path,
-
         target_size=IMAGE_SIZE,
-
     )
+
+    print("Image loaded", flush=True)
 
     image = img_to_array(image)
 
+    print("Converted to array", flush=True)
+
     image = np.expand_dims(
-
         image,
-
         axis=0,
-
     )
 
-    return image
+    print("Expanded dimensions", flush=True)
 
+    return image
 
 # ==========================================================
 # FORMAT DISEASE NAME
@@ -236,9 +237,8 @@ def predict_disease(image):
 
 def predict_image(image_path):
 
-    def predict_image(image_path):
 
-     print("Predict image started")
+    print("Predict image started")
 
     start_time = time.time()
 
