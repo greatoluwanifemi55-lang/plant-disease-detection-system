@@ -82,13 +82,17 @@ def uploaded_file(filename):
 # PREDICT
 # ==========================================================
 
+# ==========================================================
+# PREDICT
+# ==========================================================
+
 @app.route(
     "/predict",
     methods=["POST"]
 )
 def predict():
 
-    print("STEP 1 - Request received")
+    print("STEP 1 - Request received", flush=True)
 
     if "image" not in request.files:
 
@@ -124,20 +128,33 @@ def predict():
 
     file.save(image_path)
 
-    print("STEP 2 - Image saved")
+    print("STEP 2 - Image saved", flush=True)
 
-    print("STEP 3 - Starting prediction")
+    try:
 
-    result = predict_image(
-        image_path
-    )
+        print("STEP 3 - Calling predict_image()", flush=True)
 
-    print("STEP 4 - Prediction finished")
+        result = predict_image(
+            image_path
+        )
 
-    return render_template(
-        "result.html",
-        result=result
-    )
+        print("STEP 4 - Prediction completed", flush=True)
+
+        return render_template(
+            "result.html",
+            result=result
+        )
+
+    except Exception:
+
+        import traceback
+
+        traceback.print_exc()
+
+        return (
+            f"<pre>{traceback.format_exc()}</pre>",
+            500
+        )
 
 # ==========================================================
 # RUN APPLICATION
