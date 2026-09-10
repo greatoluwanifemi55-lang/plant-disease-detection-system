@@ -338,15 +338,30 @@ def predict_image(image_path):
     )
     print("=" * 60)
 
-    # ======================================================
-    # MODEL PREDICTION
-    # ======================================================
+     # ======================================================
+     # TEMPORARY RENDER DIAGNOSTIC
+     # ======================================================
 
-    model_start = time.time()
+    print("=" * 60)
+    print("RENDER DIAGNOSTIC: MODEL LOADING BYPASSED")
+    print("=" * 60)
 
-    disease, confidence, top_predictions = predict_disease(
-        image
-    )
+    return {
+    "image": Path(image_path).name,
+    "disease": "Render Diagnostic Test",
+    "confidence": 100.0,
+    "top_predictions": [],
+    "recommendation": [
+        "Temporary diagnostic test only."
+    ],
+    "explanation": "",
+    "model": MODEL_NAME,
+    "aggregation": "FedAvg",
+    "clients": "Oyo, Kaduna, Benue",
+    "rounds": 10,
+    "accuracy": "93.15%",
+    "xai": "LIME"
+}
 
     print("=" * 60)
     print(
