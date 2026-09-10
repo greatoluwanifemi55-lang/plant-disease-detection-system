@@ -48,3 +48,15 @@ evaluation_results/
 *.zip
 
 federated_learning/global_model.keras
+
+# Environment variables
+.env
+.env.*
+
+# Python build files
+*.egg-info/
+build/
+dist/
+
+# Local IDE files
+*.code-workspace
