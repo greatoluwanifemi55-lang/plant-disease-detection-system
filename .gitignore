@@ -60,3 +60,8 @@ dist/
 
 # Local IDE files
 *.code-workspace
+
+# Local diagnosis history and generated reports
+history/
+reports/
+uploads/

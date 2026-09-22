@@ -22,6 +22,16 @@ FED-XAI V2
 
 </h2>
 
+<div class="d-flex gap-2">
+
+<a href="/history" class="btn btn-outline-success btn-lg">
+
+<i class="bi bi-clock-history"></i>
+
+History
+
+</a>
+
 <a href="/" class="btn btn-success btn-lg">
 
 <i class="bi bi-arrow-left"></i>
@@ -29,6 +39,8 @@ FED-XAI V2
 New Prediction
 
 </a>
+
+</div>
 
 </div>
 
@@ -214,10 +226,17 @@ Prediction Complete
 </div>
 <div class="text-center mt-5 mb-5">
 
+    {% if result.diagnosis_id %}
     <a
+        href="{{ url_for('report', diagnosis_id=result.diagnosis_id) }}"
+        class="btn btn-outline-success btn-lg px-4 py-3 me-2">
+        <i class="bi bi-file-earmark-pdf-fill"></i>
+        Download PDF Report
+    </a>
+    {% endif %}
 
+    <a
         href="/"
-
         class="btn btn-success btn-lg px-5 py-3">
 
         <i class="bi bi-arrow-repeat"></i>
