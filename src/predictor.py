@@ -29,6 +29,7 @@ from keras.utils import (
 )
 
 from .config import (
+    BASE_DIR,
     MODELS_DIR,
     MODEL_NAME,
     IMAGE_SIZE,
@@ -44,7 +45,7 @@ from .explainability import generate_explanation
 # GLOBAL MODEL
 # ==========================================================
 
-GLOBAL_MODEL_PATH = MODELS_DIR / "ResNet50.keras"
+GLOBAL_MODEL_PATH = BASE_DIR / "federated_learning" / "global_model.keras"
 
 model = None
 class_names = None
@@ -338,30 +339,15 @@ def predict_image(image_path):
     )
     print("=" * 60)
 
-     # ======================================================
-     # TEMPORARY RENDER DIAGNOSTIC
-     # ======================================================
+    # ======================================================
+    # MODEL PREDICTION
+    # ======================================================
 
-    print("=" * 60)
-    print("RENDER DIAGNOSTIC: MODEL LOADING BYPASSED")
-    print("=" * 60)
+    model_start = time.time()
 
-    return {
-    "image": Path(image_path).name,
-    "disease": "Render Diagnostic Test",
-    "confidence": 100.0,
-    "top_predictions": [],
-    "recommendation": [
-        "Temporary diagnostic test only."
-    ],
-    "explanation": "",
-    "model": MODEL_NAME,
-    "aggregation": "FedAvg",
-    "clients": "Oyo, Kaduna, Benue",
-    "rounds": 10,
-    "accuracy": "93.15%",
-    "xai": "LIME"
-}
+    disease, confidence, top_predictions = predict_disease(
+        image
+    )
 
     print("=" * 60)
     print(
@@ -604,7 +590,7 @@ def predict_image(image_path):
             10,
 
         "accuracy":
-            "93.15%",
+            "95.04%",
 
         "xai":
             "LIME"
